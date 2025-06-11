@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Dự đoán thời tiết dựa trên ảnh</h1>
+        <form method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept="image/*" required>
+            <input type="submit" value="Dự đoán">
+        </form>
+        {% if prediction %}
+            <h2>Kết quả:</h2>
+            <p>{{ prediction }}</p>
+            {% if image_url %}
+                <img src="{{ image_url }}" alt="Uploaded Image" class="result-image">
+            {% endif %}
+        {% endif %}
+    </div>
+</body>
+</html>
