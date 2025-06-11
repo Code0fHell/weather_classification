@@ -1,10 +1,14 @@
-# Weather Image Prediction with Deep Learning
+# Weather Image Prediction
 
-This project trains a Convolutional Neural Network (CNN) to classify weather conditions from images using transfer learning with MobileNetV2. The workflow includes data preparation, augmentation, model training, evaluation, and prediction.
+This project uses deep learning to classify weather conditions from images. It leverages transfer learning with MobileNetV2 and provides a full workflow from data preparation to model deployment.
 
 ## Project Structure
 
 ```
+.gitignore
+app.py
+README.md
+requirements.txt
 weather_prediction_training.ipynb
 dataset/
     dew/
@@ -20,113 +24,112 @@ dataset/
     snow/
 model/
     weather_cnn.keras
+myenv/
+static/
+    styles.css
+    uploads/
+templates/
+    index.html
+uploads/
+    test.png
 ```
 
-## Requirements
+- **weather_prediction_training.ipynb**: Jupyter notebook for data processing, model training, evaluation, and testing.
+- **app.py**: (Presumably) Flask or FastAPI app for serving predictions (not detailed here).
+- **dataset/**: Contains subfolders for each weather class with images.
+- **model/**: Stores the trained Keras model.
+- **static/**, **templates/**: For web app static files and HTML templates.
+- **uploads/**: For user-uploaded images to be predicted.
 
-- Python 3.7+
-- TensorFlow
-- NumPy
-- Pandas
-- scikit-learn
-- matplotlib
-- seaborn
-- OpenCV
-- Google Colab (for file upload utilities)
-- kaggle (for dataset download)
+## Setup
 
-Install dependencies:
-```sh
-pip install tensorflow numpy pandas scikit-learn matplotlib seaborn kaggle opencv-python
-```
+1. **Clone the repository** and create a virtual environment:
+    ```sh
+    python -m venv myenv
+    source myenv/Scripts/activate  # On Windows
+    # or
+    source myenv/bin/activate      # On Linux/Mac
+    ```
 
-## Dataset
+2. **Install dependencies**:
+    ```sh
+    pip install -r requirements.txt
+    ```
+    If `requirements.txt` is missing, install manually:
+    ```sh
+    pip install tensorflow numpy pandas scikit-learn matplotlib seaborn opencv-python kaggle
+    ```
 
-The dataset is downloaded from Kaggle (`jehanbhathena/weather-dataset`). It contains images categorized into 11 weather classes.
+3. **Download the dataset**:
+    - Place your `kaggle.json` API key in the notebook directory.
+    - Run the relevant cells in [weather_prediction_training.ipynb](weather_prediction_training.ipynb) to download and extract the dataset from Kaggle.
 
 ## Workflow
 
-### 1. Install and Import Libraries
+### 1. Data Preparation
 
-All necessary libraries are installed and imported at the start of the notebook.
+- The dataset is organized into class folders under `dataset/`.
+- The notebook splits the data into training, validation, and test sets (70/15/15).
+- Data augmentation is applied to the training set.
 
-### 2. Dataset Preparation
+### 2. Model Training
 
-- **Kaggle API** is used to download the dataset.
-- The dataset is unzipped and organized into class folders under `dataset/`.
+- Uses MobileNetV2 as a base (pre-trained on ImageNet).
+- Custom dense and dropout layers are added for classification.
+- Handles class imbalance with computed class weights.
+- Early stopping and learning rate reduction callbacks are used.
+- Fine-tuning is performed by unfreezing the last 10 layers of MobileNetV2.
 
-### 3. Data Exploration
+### 3. Evaluation
 
-- The script prints the number of images per class.
-- Sample images from each class are displayed using matplotlib.
+- Plots training/validation accuracy and loss.
+- Evaluates on the test set.
+- Visualizes predictions using PCA.
+- Displays a confusion matrix and classification report.
 
-### 4. Data Processing
+### 4. Saving and Loading the Model
 
-#### a. Split Dataset
+- The trained model is saved as `model/weather_cnn.keras`.
+- For predictions, the model can be loaded and used on new images.
 
-The dataset is split into training (70%), validation (15%), and test (15%) sets using [`split_dataset`](d:/weather_prediction_project/weather_prediction_training.ipynb).
+### 5. Web App (Optional)
 
-#### b. Data Augmentation
-
-- Training images are augmented with rotation, shift, shear, zoom, and horizontal flip.
-- Validation and test images are only rescaled.
-
-#### c. Data Generators
-
-Keras `ImageDataGenerator` is used to create generators for training, validation, and testing.
-
-### 5. Model Building
-
-- **Transfer Learning:** MobileNetV2 (pre-trained on ImageNet) is used as the base model.
-- The base model is frozen initially.
-- Custom layers (GlobalAveragePooling, Dense, Dropout, and final Dense with softmax) are added for classification.
-
-### 6. Training
-
-- **Class Imbalance:** Class weights are computed to handle imbalance.
-- **Callbacks:** Early stopping and learning rate reduction on plateau are used.
-- The model is trained first with the base model frozen, then fine-tuned by unfreezing the last 10 layers.
-
-### 7. Visualization
-
-- Training and validation accuracy/loss are plotted over epochs.
-
-### 8. Evaluation
-
-- The model is evaluated on the test set.
-- PCA is applied to the predictions for visualization.
-- A confusion matrix and classification report are generated.
-
-### 9. Saving and Loading the Model
-
-- The trained model is saved as `models/weather_cnn.keras`.
-- For prediction, the model can be loaded and used to classify new images.
-
-### 10. Test Prediction
-
-Example code is provided to load the model and predict the weather class for a new image.
+- If `app.py` is a web server, it likely uses the trained model to serve predictions via a web interface.
+- Static files and templates are used for the frontend.
 
 ## Usage
 
-1. **Download the dataset**  
-   Upload your `kaggle.json` and run the notebook to download and extract the dataset.
+### Training
 
-2. **Run the notebook**  
-   Execute each cell in [weather_prediction_training.ipynb](d:/weather_prediction_project/weather_prediction_training.ipynb) in order.
+1. Open [weather_prediction_training.ipynb](weather_prediction_training.ipynb) in Jupyter or VS Code.
+2. Run all cells in order to:
+    - Download and prepare the dataset.
+    - Train and fine-tune the model.
+    - Evaluate and save the model.
 
-3. **Train the model**  
-   The notebook will handle data splitting, augmentation, model training, and evaluation.
+### Prediction
 
-4. **Predict new images**  
-   Use the provided code to load the trained model and predict the class of new images.
+- To predict a new image:
+    1. Place the image in the `uploads/` directory (e.g., `uploads/test.png`).
+    2. Use the prediction code in the notebook or via the web app (if implemented).
+
+### Web App
+
+- If you have a web interface, start the server:
+    ```sh
+    python app.py
+    ```
+- Visit `http://localhost:5000` (or the specified port) to upload images and see predictions.
 
 ## Notes
 
-- The code is designed for use in Google Colab but can be adapted for local use.
 - Ensure the dataset directory structure matches the expected format.
-- Adjust hyperparameters (batch size, learning rate, epochs) as needed for your hardware and dataset size.
+- Adjust hyperparameters (batch size, learning rate, epochs) as needed.
+- The notebook is designed for both local and Colab use.
+- For best results, use a GPU-enabled environment.
 
 ## References
 
 - [Kaggle Weather Dataset](https://www.kaggle.com/datasets/jehanbhathena/weather-dataset)
 - [MobileNetV2 Paper](https://arxiv.org/abs/1801.04381)
+- [TensorFlow Documentation](https://www.tensorflow.org/)
