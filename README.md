@@ -1,4 +1,4 @@
-# Weather Image Prediction
+# Weather Image Classification
 
 This project uses deep learning to classify weather conditions from images. It leverages transfer learning with MobileNetV2 and provides a full workflow from data preparation to model deployment.
 
@@ -107,7 +107,7 @@ uploads/
     - Train and fine-tune the model.
     - Evaluate and save the model.
 
-### Prediction
+### Classification
 
 - To predict a new image:
     1. Place the image in the `uploads/` directory (e.g., `uploads/test.png`).
